@@ -25,5 +25,6 @@ https://vuetifyjs.com/en/components/simple-tables/
 - Axios
 - EsLint
 - TypeScript
+- WebSockets
 
 ## Muchas Gracias
