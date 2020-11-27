@@ -1,5 +1,8 @@
 # RetoBCP
-
+ - Daniel Núñez Robinson
+ - Christian Espíritu Cueva
+ 
+## Algunas fuentes de conocimiento investigadas 
 https://gorm.io/docs/migration.html
 https://godoc.org/github.com/golang-migrate/migrate/database/sqlite3
 https://www.tutorialspoint.com/go/go_data_types.htm
@@ -14,3 +17,10 @@ https://vuetifyjs.com/en/components/simple-tables/
 - Vue
 - Vuetify
 - SQLite
+- Yarn
+- NuxtJS
+- Axios
+- EsLint
+- TypeScript
+
+## Muchas Gracias
