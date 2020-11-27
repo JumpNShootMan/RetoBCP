@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/JumpNShootMan/RetoBCP/meme-bank/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/jamilchioino/meme-bank/database"
-	//	"github.com/jamilchioino/meme-bank/database"
 	"github.com/jinzhu/gorm"
 )
 

@@ -1,4 +1,4 @@
-module github.com/jamilchioino/meme-bank
+module github.com/JumpNShootMan/RetoBCP/meme-bank
 
 go 1.15
 

@@ -6,23 +6,25 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/JumpNShootMan/RetoBCP/meme-bank/database"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/gorm"
-	"github.com/jumpnshootman/RetoBCP/meme-bank/database"
 )
 
-// Transaction model
+// Transaction - modelo
 type Transaction struct {
 	gorm.Model
-	Amount      float64 `json:"amount" validate:"required"`
-	FromID      uint    `json:"from_user_id" validate:"required"`
-	From        User    `validate:"-"`
-	ToID        uint    `json:"to_user_id" validate:"required"`
-	To          User    `validate:"-"`
-	Description string  `json:"description" validate:"required"`
+	Amount      float64  `json:"amount" validate:"required"`
+	Category    Category `json:"category" validate:"-"`
+	CategoryID  uint     `json:"category_id" validate:"-"`
+	FromID      uint     `json:"from_user_id" validate:"required"`
+	From        User     `validate:"-"`
+	ToID        uint     `json:"to_user_id" validate:"required"`
+	To          User     `validate:"-"`
+	Description string   `json:"description" validate:"required"`
 }
 
-// TransactionsOfUser returns all transactions of a user
+// TransactionsOfUser retorna todas las transacciones del usuario
 func TransactionsOfUser(userID uint) ([]Transaction, error) {
 	db := database.DBConn
 	if err := db.First(&User{}, userID).Error; err != nil {
@@ -30,14 +32,14 @@ func TransactionsOfUser(userID uint) ([]Transaction, error) {
 	}
 
 	var transactions []Transaction
-	if err := db.Preload("From").Preload("To").Order("created_at desc").Where("from_id = ? OR to_id = ?", userID, userID).Find(&transactions).Error; err != nil {
+	if err := db.Preload("From").Preload("To").Preload("Category").Order("created_at desc").Where("from_id = ? OR to_id = ?", userID, userID).Find(&transactions).Error; err != nil {
 		return nil, fmt.Errorf("no transactions found for that user")
 	}
 
 	return transactions, nil
 }
 
-// GetTransactionsOfUser gets all transactions of a user
+// GetTransactionsOfUser consigue todas las transacciones del usuario
 func GetTransactionsOfUser(c *fiber.Ctx) error {
 	idparam := c.Params("id")
 	id, err := strconv.ParseUint(idparam, 10, 16)
@@ -58,7 +60,7 @@ func GetTransactionsOfUser(c *fiber.Ctx) error {
 func GetTransactions(c *fiber.Ctx) error {
 	db := database.DBConn
 	var transactions []Transaction
-	db.Preload("From").Preload("To").Find(&transactions)
+	db.Preload("From").Preload("To").Preload("Category").Find(&transactions)
 	return c.Status(fiber.StatusOK).JSON(transactions)
 }
 
@@ -88,6 +90,7 @@ func NewTransaction(c *fiber.Ctx) error {
 
 	userTo := new(User)
 	userFrom := new(User)
+	category := new(Category)
 
 	if err := db.First(&userTo, transaction.ToID).Error; err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": "to_user does not exist"})
@@ -97,13 +100,17 @@ func NewTransaction(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": "from_user does not exist"})
 	}
 
+	if err := db.First(&category, transaction.CategoryID).Error; err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": "category does not exist"})
+	}
+
 	userToBalance, err := Balance(transaction.FromID)
 	if transaction.Amount > userToBalance {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "not enough funds to complete transaction"})
 	}
 
 	db.Create(&transaction)
-	db.Preload("To").Preload("From").First(&transaction, transaction.ID)
+	db.Preload("To").Preload("From").Preload("Category").First(&transaction, transaction.ID)
 
 	marshal, err := json.Marshal(transaction)
 	if err != nil {

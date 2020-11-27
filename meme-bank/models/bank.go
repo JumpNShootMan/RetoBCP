@@ -1,15 +1,15 @@
 package models
 
 import (
-	"github.com/jamilchioino/meme-bank/database"
+	"github.com/JumpNShootMan/RetoBCP/meme-bank/database"
 )
 
 // CreateBank creates an initial transaction from a reserve bank
 func CreateBank() error {
 	db := database.DBConn
 	bank := User{
-		Email:    "reservas@interbank.com",
-		Name:     "Interbank",
+		Email:    "reservas@bcp.com",
+		Name:     "BCP",
 		Password: "12345",
 		Surname:  "Peru",
 	}
